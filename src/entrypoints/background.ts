@@ -154,8 +154,9 @@ async function updateBadge() {
 
     await browser.action.setBadgeText({ text: badgeText });
 
-    const color = timerState.mode === 'work' ? '#f44336' : '#4caf50';
+    const color = timerState.mode === 'work' ? '#bd4e46' : '#34a938';
     await browser.action.setBadgeBackgroundColor({ color });
+    await browser.action.setBadgeTextColor({ color: '#ffffff' });
   } catch (error) {
     console.error('Error updating badge:', error);
   }
