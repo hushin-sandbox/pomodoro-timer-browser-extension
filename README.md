@@ -67,11 +67,39 @@ pnpm compile
 
 ## ファイル構造
 
-TODO https://wxt.dev/guide/essentials/project-structure.html を参照
+WXT フレームワークに基づく標準的なプロジェクト構造:
 
 ```
-src/
+📂 /
+   📁 .output/            # ビルド成果物（自動生成）
+   📁 .wxt/               # WXT設定ファイル（自動生成）
+   📁 public/             # 静的ファイル（そのままコピーされる）
+   │  📁 icon/           # 拡張機能アイコン（16, 32, 48, 96, 128px）
+   │  └─ wxt.svg         # WXTロゴ
+   📁 src/                # ソースコード
+   │  📁 assets/         # 処理されるアセット（CSS、画像など）
+   │  📁 entrypoints/    # 拡張機能エントリーポイント
+   │  │  ├─ background.ts      # バックグラウンドスクリプト
+   │  │  ├─ content.ts         # コンテンツスクリプト
+   │  │  └─ popup/             # ポップアップUI
+   │  │     ├─ App.svelte      # メインSvelteコンポーネント
+   │  │     ├─ app.css         # ポップアップ用スタイル
+   │  │     ├─ index.html      # ポップアップHTML
+   │  │     └─ main.ts         # ポップアップエントリー
+   │  └─ lib/            # 再利用可能コンポーネント
+   │     └─ PomodoroTimer.svelte  # ポモドーロタイマーコンポーネント
+   📄 wxt.config.ts       # WXT設定ファイル
+   📄 tsconfig.json       # TypeScript設定
+   📄 wxt-env.d.ts        # WXT型定義
 ```
+
+### ディレクトリ説明
+
+- **entrypoints/**: ブラウザ拡張の各エントリーポイント（background, content, popup）
+- **lib/**: Svelte コンポーネントやユーティリティ（自動インポート対応）
+- **assets/**: CSS、画像などの処理対象アセット
+- **public/**: 変更せずにそのままコピーされる静的ファイル
+- **.output/**: ビルド後の成果物（Chrome と Firefox 用のマニフェストを含む）
 
 ## 使用方法
 
