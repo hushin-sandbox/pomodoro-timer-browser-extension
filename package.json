@@ -1,6 +1,6 @@
 {
-  "name": "wxt-svelte-starter",
-  "description": "manifest.json description",
+  "name": "simple-pomodoro-timer",
+  "description": "A simple Pomodoro timer browser extension",
   "private": true,
   "version": "0.0.0",
   "type": "module",
