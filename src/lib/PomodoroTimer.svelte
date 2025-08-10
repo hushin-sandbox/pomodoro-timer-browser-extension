@@ -156,13 +156,11 @@
   }
 
   .work-mode {
-    background: linear-gradient(135deg, #ffebee, #ffcdd2);
-    border: 2px solid #f44336;
+    border: 1px solid #94a3b8;
   }
 
   .break-mode {
-    background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
-    border: 2px solid #4caf50;
+    border: 1px solid #94a3b8;
   }
 
   .timer-display {
@@ -176,11 +174,11 @@
   }
 
   .work-mode .mode-indicator {
-    color: #c62828;
+    color: #64748b;
   }
 
   .break-mode .mode-indicator {
-    color: #2e7d32;
+    color: #64748b;
   }
 
   .time-display {
@@ -191,11 +189,11 @@
   }
 
   .work-mode .time-display {
-    color: #d32f2f;
+    color: #374151;
   }
 
   .break-mode .time-display {
-    color: #388e3c;
+    color: #374151;
   }
 
   .pomodoro-count {
@@ -263,14 +261,12 @@
   }
 
   .work-mode .mode-button.active {
-    border-color: #f44336;
-    background: #ffebee;
+    border-color: #94a3b8;
     opacity: 1;
   }
 
   .break-mode .mode-button.active {
-    border-color: #4caf50;
-    background: #e8f5e8;
+    border-color: #94a3b8;
     opacity: 1;
   }
 
