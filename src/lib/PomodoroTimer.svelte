@@ -150,7 +150,7 @@
 
 <style>
   .pomodoro-timer {
-    padding: 20px;
+    padding: 16px;
     border-radius: 12px;
     text-align: center;
     transition: all 0.3s ease;
@@ -166,7 +166,7 @@
   }
 
   .timer-display {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   .mode-indicator {
@@ -206,7 +206,7 @@
   .controls {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     justify-content: center;
   }
 

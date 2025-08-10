@@ -20,7 +20,7 @@
   main {
     padding: 0;
     margin: 0;
-    min-height: 400px;
+    min-height: 300px;
     display: flex;
     flex-direction: column;
   }
