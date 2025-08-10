@@ -1,7 +1,82 @@
-# WXT + Svelte
+# ポモドーロタイマー ブラウザ拡張
 
-This template should help get you started developing with Svelte in WXT.
+ポモドーロテクニック用のシンプルなブラウザ拡張機能です。
 
-## Recommended IDE Setup
+## 機能
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+### 基本機能
+
+- ⏰ 25 分の作業時間 + 5 分の休憩時間のポモドーロサイクル
+- ▶️ 開始/一時停止/リセット機能
+- 🔄 作業時間と休憩時間の手動切り替え
+- 🔢 拡張アイコンのバッジに残り時間（分）を表示
+
+### UI/UX
+
+- 🎨 色分け表示: 作業時間（赤）、休憩時間（緑）
+- 📈 本日のポモドーロ完了数をカウント
+
+### 通知機能
+
+- 🔔 ブラウザ通知でタイマー終了をお知らせ
+- 💬 状況別メッセージ: 作業完了時と休憩完了時で異なる内容
+
+## 技術構成
+
+- フレームワーク: [WXT](https://wxt.dev/) - 最新のブラウザ拡張開発フレームワーク
+- UI: Svelte
+- パッケージマネージャー: pnpm
+- 言語: TypeScript
+- 対応ブラウザ: Chrome, Edge, Firefox など
+
+## 開発・ビルド
+
+### 必要な環境
+
+- Node.js 22+
+- pnpm
+
+### セットアップ
+
+```bash
+# 依存関係のインストール
+pnpm install
+
+# 開発サーバー起動（Chrome）
+pnpm dev
+```
+
+### ビルド
+
+```bash
+# 本番用ビルド
+pnpm build
+
+# Firefox用ビルド
+pnpm build:firefox
+
+# ZIP形式でパッケージ化
+pnpm zip
+```
+
+### TypeScript コンパイルチェック
+
+```bash
+pnpm compile
+```
+
+## ファイル構造
+
+TODO https://wxt.dev/guide/essentials/project-structure.html を参照
+
+```
+src/
+```
+
+## 使用方法
+
+1. 拡張アイコンをクリックしてポップアップを開く
+2. 「開始」ボタンでタイマーをスタート
+3. タイマー動作中は拡張アイコンに残り時間が表示される
+4. 25 分経過で通知が表示され、ユーザーがボタンを押したら 5 分の休憩モードに切り替わる
+5. 「休憩に切替」/「作業に切替」ボタンで手動切り替え可能
