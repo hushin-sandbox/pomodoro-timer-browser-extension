@@ -1,42 +1,46 @@
 <script lang="ts">
-  import svelteLogo from '../../assets/svelte.svg'
-  import Counter from '../../lib/Counter.svelte'
+  import PomodoroTimer from '../../lib/PomodoroTimer.svelte'
+
+  let badgeTimeLeft = 0;
+  let badgeIsRunning = false;
+  let badgeMode: 'work' | 'break' = 'work';
+
+  function handleTimerUpdate(timeLeft: number, isRunning: boolean, mode: 'work' | 'break') {
+    badgeTimeLeft = timeLeft;
+    badgeIsRunning = isRunning;
+    badgeMode = mode;
+  }
 </script>
 
 <main>
-  <div>
-    <a href="https://wxt.dev" target="_blank" rel="noreferrer">
-      <img src="/wxt.svg" class="logo" alt="WXT Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>WXT + Svelte</h1>
-
-  <div class="card">
-    <Counter />
+  <div class="app-header">
+    <h1>🍅 ポモドーロタイマー</h1>
   </div>
 
-  <p class="read-the-docs">
-    Click on the WXT and Svelte logos to learn more
-  </p>
+  <PomodoroTimer onTimerUpdate={handleTimerUpdate} />
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  main {
+    padding: 0;
+    margin: 0;
+    background: #f5f5f5;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #54bc4ae0);
+
+  .app-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    margin-bottom: 0;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
+
+  .app-header h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
   }
 </style>
