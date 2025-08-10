@@ -40,7 +40,7 @@
     async function initialize() {
       // backgroundスクリプトから状態を取得を試行
       const initialized = await initializeFromBackground();
-      
+
       // 失敗した場合のみデフォルト値で初期化
       if (!initialized) {
         updateState({});
@@ -186,7 +186,7 @@
   .time-display {
     font-size: 48px;
     font-weight: bold;
-    font-family: 'Courier New', monospace;
+    font-family: 'UDEV Gothic', 'HackGen', 'Courier New', monospace;
     margin: 15px 0;
   }
 
