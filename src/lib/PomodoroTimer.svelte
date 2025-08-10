@@ -10,14 +10,13 @@
   let mode: 'work' | 'break' = 'work';
   let completedPomodoros = 0;
   let isInitialized = false;
-  let intervalId: number | null = null;
 
   const WORK_TIME = 25 * 60;
   const BREAK_TIME = 5 * 60;
 
   onMount(() => {
     const initialize = async () => {
-      // まず背景スクリプトから現在の状態を取得
+      // まずbackgroundスクリプトから現在の状態を取得
       if (typeof chromeApi !== 'undefined' && chromeApi.runtime) {
         try {
           const response = await chromeApi.runtime.sendMessage({ type: 'GET_TIMER_STATE' });
@@ -34,11 +33,11 @@
           console.log('Background script not available, loading from storage');
         }
       }
-      
-      // 背景スクリプトが利用できない場合はストレージから読み込み
+
+      // backgroundスクリプトが利用できない場合はストレージから読み込み
       await loadState();
     };
-    
+
     initialize();
 
     const messageListener = (message: any) => {
