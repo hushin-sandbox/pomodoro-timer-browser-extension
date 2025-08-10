@@ -5,17 +5,41 @@
 
   export let onTimerUpdate: (timeLeft: number, isRunning: boolean, mode: 'work' | 'break') => void = () => {};
 
-  let timeLeft = 25 * 60;
+  let timeLeft = 0;
   let isRunning = false;
   let mode: 'work' | 'break' = 'work';
   let completedPomodoros = 0;
+  let isInitialized = false;
   let intervalId: number | null = null;
 
   const WORK_TIME = 25 * 60;
   const BREAK_TIME = 5 * 60;
 
   onMount(() => {
-    loadState();
+    const initialize = async () => {
+      // まず背景スクリプトから現在の状態を取得
+      if (typeof chromeApi !== 'undefined' && chromeApi.runtime) {
+        try {
+          const response = await chromeApi.runtime.sendMessage({ type: 'GET_TIMER_STATE' });
+          if (response) {
+            timeLeft = response.timeLeft;
+            isRunning = response.isRunning;
+            mode = response.mode;
+            completedPomodoros = response.completedPomodoros;
+            isInitialized = true;
+            onTimerUpdate(timeLeft, isRunning, mode);
+            return;
+          }
+        } catch (error) {
+          console.log('Background script not available, loading from storage');
+        }
+      }
+      
+      // 背景スクリプトが利用できない場合はストレージから読み込み
+      await loadState();
+    };
+    
+    initialize();
 
     const messageListener = (message: any) => {
       if (message.type === 'TIMER_UPDATE') {
@@ -23,6 +47,7 @@
         isRunning = message.isRunning;
         mode = message.mode;
         completedPomodoros = message.completedPomodoros;
+        isInitialized = true;
         onTimerUpdate(timeLeft, isRunning, mode);
       }
     };
@@ -45,9 +70,17 @@
         isRunning = state.isRunning;
         mode = state.mode;
         completedPomodoros = state.completedPomodoros;
-        onTimerUpdate(timeLeft, isRunning, mode);
+      } else {
+        timeLeft = WORK_TIME;
+        mode = 'work';
       }
+    } else {
+      // ChromeAPIが利用できない場合（開発環境など）のデフォルト値
+      timeLeft = WORK_TIME;
+      mode = 'work';
     }
+    isInitialized = true;
+    onTimerUpdate(timeLeft, isRunning, mode);
   }
 
   async function saveState() {
@@ -109,43 +142,51 @@
 </script>
 
 <div class="pomodoro-timer" class:work-mode={mode === 'work'} class:break-mode={mode === 'break'}>
-  <div class="timer-display">
-    <div class="mode-indicator">
-      {mode === 'work' ? '🍅 作業時間' : '☕ 休憩時間'}
+  {#if isInitialized}
+    <div class="timer-display">
+      <div class="mode-indicator">
+        {mode === 'work' ? '🍅 作業時間' : '☕ 休憩時間'}
+      </div>
+      <div class="time-display">
+        {formatTime(timeLeft)}
+      </div>
+      <div class="pomodoro-count">
+        今日の完了数: {completedPomodoros}
+      </div>
     </div>
-    <div class="time-display">
-      {formatTime(timeLeft)}
+  {:else}
+    <div class="timer-display">
+      <div class="loading">読み込み中...</div>
     </div>
-    <div class="pomodoro-count">
-      今日の完了数: {completedPomodoros}
-    </div>
-  </div>
+  {/if}
 
-  <div class="controls">
-    <button class="primary-button" on:click={toggleTimer}>
-      {isRunning ? '⏸️ 一時停止' : '▶️ 開始'}
-    </button>
-    <button class="secondary-button" on:click={resetTimer}>
-      🔄 リセット
-    </button>
-  </div>
+  {#if isInitialized}
+    <div class="controls">
+      <button class="primary-button" on:click={toggleTimer}>
+        {isRunning ? '⏸️ 一時停止' : '▶️ 開始'}
+      </button>
+      <button class="secondary-button" on:click={resetTimer}>
+        🔄 リセット
+      </button>
+    </div>
 
-  <div class="mode-switch">
-    <button
-      class="mode-button"
-      class:active={mode === 'work'}
-      on:click={() => switchMode('work')}
-    >
-      🍅 作業に切替
-    </button>
-    <button
-      class="mode-button"
-      class:active={mode === 'break'}
-      on:click={() => switchMode('break')}
-    >
-      ☕ 休憩に切替
-    </button>
-  </div>
+    <div class="mode-switch">
+      <button
+        class="mode-button"
+        class:active={mode === 'work'}
+        on:click={() => switchMode('work')}
+      >
+        🍅 作業に切替
+      </button>
+      <button
+        class="mode-button"
+        class:active={mode === 'break'}
+        on:click={() => switchMode('break')}
+      >
+        ☕ 休憩に切替
+      </button>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -274,5 +315,11 @@
     border-color: #4caf50;
     background: #e8f5e8;
     opacity: 1;
+  }
+
+  .loading {
+    font-size: 16px;
+    color: #666;
+    padding: 48px 0;
   }
 </style>
