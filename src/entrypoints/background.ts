@@ -1,21 +1,6 @@
-interface TimerState {
-  timeLeft: number;
-  isRunning: boolean;
-  mode: 'work' | 'break';
-  completedPomodoros: number;
-  lastUpdate: number;
-}
+import { TimerState, WORK_TIME, BREAK_TIME, createInitialTimerState } from '../lib/timer-types';
 
-const WORK_TIME = 25 * 60;
-const BREAK_TIME = 5 * 60;
-
-let timerState: TimerState = {
-  timeLeft: WORK_TIME,
-  isRunning: false,
-  mode: 'work',
-  completedPomodoros: 0,
-  lastUpdate: Date.now(),
-};
+let timerState: TimerState;
 
 let timerInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -67,11 +52,15 @@ async function loadTimerState() {
       }
 
       timerState = savedState;
-      await updateBadge();
-      await broadcastTimerUpdate();
+    } else {
+      timerState = createInitialTimerState();
     }
+    
+    await updateBadge();
+    await broadcastTimerUpdate();
   } catch (error) {
     console.error('Error loading timer state:', error);
+    timerState = createInitialTimerState();
   }
 }
 

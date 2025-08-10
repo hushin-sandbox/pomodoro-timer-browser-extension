@@ -1,99 +1,69 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { WORK_TIME, BREAK_TIME, type TimerState } from './timer-types';
 
   const chromeApi = (globalThis as any).chrome;
 
   export let onTimerUpdate: (timeLeft: number, isRunning: boolean, mode: 'work' | 'break') => void = () => {};
 
-  let timeLeft = 0;
+  let timeLeft = WORK_TIME;
   let isRunning = false;
   let mode: 'work' | 'break' = 'work';
   let completedPomodoros = 0;
   let isInitialized = false;
 
-  const WORK_TIME = 25 * 60;
-  const BREAK_TIME = 5 * 60;
+  function updateState(state: Partial<TimerState>) {
+    if (state.timeLeft !== undefined) timeLeft = state.timeLeft;
+    if (state.isRunning !== undefined) isRunning = state.isRunning;
+    if (state.mode !== undefined) mode = state.mode;
+    if (state.completedPomodoros !== undefined) completedPomodoros = state.completedPomodoros;
+    isInitialized = true;
+    onTimerUpdate(timeLeft, isRunning, mode);
+  }
+
+  async function initializeFromBackground() {
+    if (typeof chromeApi !== 'undefined' && chromeApi.runtime) {
+      try {
+        const response = await chromeApi.runtime.sendMessage({ type: 'GET_TIMER_STATE' });
+        if (response) {
+          updateState(response);
+          return true;
+        }
+      } catch (error) {
+        console.log('Background script not available');
+      }
+    }
+    return false;
+  }
 
   onMount(() => {
-    const initialize = async () => {
-      // まずbackgroundスクリプトから現在の状態を取得
-      if (typeof chromeApi !== 'undefined' && chromeApi.runtime) {
-        try {
-          const response = await chromeApi.runtime.sendMessage({ type: 'GET_TIMER_STATE' });
-          if (response) {
-            timeLeft = response.timeLeft;
-            isRunning = response.isRunning;
-            mode = response.mode;
-            completedPomodoros = response.completedPomodoros;
-            isInitialized = true;
-            onTimerUpdate(timeLeft, isRunning, mode);
-            return;
-          }
-        } catch (error) {
-          console.log('Background script not available, loading from storage');
-        }
+    async function initialize() {
+      // backgroundスクリプトから状態を取得を試行
+      const initialized = await initializeFromBackground();
+      
+      // 失敗した場合のみデフォルト値で初期化
+      if (!initialized) {
+        updateState({});
       }
-
-      // backgroundスクリプトが利用できない場合はストレージから読み込み
-      await loadState();
-    };
+    }
 
     initialize();
 
+    // メッセージリスナーを設定
     const messageListener = (message: any) => {
       if (message.type === 'TIMER_UPDATE') {
-        timeLeft = message.timeLeft;
-        isRunning = message.isRunning;
-        mode = message.mode;
-        completedPomodoros = message.completedPomodoros;
-        isInitialized = true;
-        onTimerUpdate(timeLeft, isRunning, mode);
+        updateState(message);
       }
     };
 
     if (typeof chromeApi !== 'undefined' && chromeApi.runtime) {
       chromeApi.runtime.onMessage.addListener(messageListener);
-
       return () => {
         chromeApi.runtime.onMessage.removeListener(messageListener);
       };
     }
   });
 
-  async function loadState() {
-    if (typeof chromeApi !== 'undefined' && chromeApi.storage) {
-      const result = await chromeApi.storage.local.get(['timerState']);
-      if (result.timerState) {
-        const state = result.timerState;
-        timeLeft = state.timeLeft;
-        isRunning = state.isRunning;
-        mode = state.mode;
-        completedPomodoros = state.completedPomodoros;
-      } else {
-        timeLeft = WORK_TIME;
-        mode = 'work';
-      }
-    } else {
-      // ChromeAPIが利用できない場合（開発環境など）のデフォルト値
-      timeLeft = WORK_TIME;
-      mode = 'work';
-    }
-    isInitialized = true;
-    onTimerUpdate(timeLeft, isRunning, mode);
-  }
-
-  async function saveState() {
-    if (typeof chromeApi !== 'undefined' && chromeApi.storage) {
-      await chromeApi.storage.local.set({
-        timerState: {
-          timeLeft,
-          isRunning,
-          mode,
-          completedPomodoros
-        }
-      });
-    }
-  }
 
   async function sendMessage(type: string, data: any = {}) {
     if (typeof chromeApi !== 'undefined' && chromeApi.runtime) {
@@ -106,27 +76,15 @@
   }
 
   async function toggleTimer() {
-    isRunning = !isRunning;
     await sendMessage('TOGGLE_TIMER');
-    await saveState();
-    onTimerUpdate(timeLeft, isRunning, mode);
   }
 
   async function resetTimer() {
-    isRunning = false;
-    timeLeft = mode === 'work' ? WORK_TIME : BREAK_TIME;
     await sendMessage('RESET_TIMER', { mode });
-    await saveState();
-    onTimerUpdate(timeLeft, isRunning, mode);
   }
 
   async function switchMode(newMode: 'work' | 'break') {
-    mode = newMode;
-    isRunning = false;
-    timeLeft = mode === 'work' ? WORK_TIME : BREAK_TIME;
-    await sendMessage('SWITCH_MODE', { mode });
-    await saveState();
-    onTimerUpdate(timeLeft, isRunning, mode);
+    await sendMessage('SWITCH_MODE', { mode: newMode });
   }
 
   function formatTime(seconds: number): string {
