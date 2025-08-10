@@ -143,7 +143,14 @@ async function updateBadge() {
 
     await browser.action.setBadgeText({ text: badgeText });
 
-    const color = timerState.mode === 'work' ? '#bd4e46' : '#34a938';
+    // タイマーが動いていない時は低彩度の色を使用
+    let color: string;
+    if (timerState.isRunning) {
+      color = timerState.mode === 'work' ? '#bd4e46' : '#34a938';
+    } else {
+      color = timerState.mode === 'work' ? '#9d6b66' : '#6b9d6e';
+    }
+    
     await browser.action.setBadgeBackgroundColor({ color });
     await browser.action.setBadgeTextColor({ color: '#ffffff' });
   } catch (error) {
