@@ -17,6 +17,7 @@
     if (state.isRunning !== undefined) isRunning = state.isRunning;
     if (state.mode !== undefined) mode = state.mode;
     if (state.completedPomodoros !== undefined) completedPomodoros = state.completedPomodoros;
+
     isInitialized = true;
     onTimerUpdate(timeLeft, isRunning, mode);
   }
@@ -259,16 +260,6 @@
   }
 
   .mode-button:hover {
-    opacity: 1;
-  }
-
-  .work-mode .mode-button.active {
-    border-color: #94a3b8;
-    opacity: 1;
-  }
-
-  .break-mode .mode-button.active {
-    border-color: #94a3b8;
     opacity: 1;
   }
 

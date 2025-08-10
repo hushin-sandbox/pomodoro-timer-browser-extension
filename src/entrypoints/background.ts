@@ -1,4 +1,9 @@
-import { TimerState, WORK_TIME, BREAK_TIME, createInitialTimerState } from '../lib/timer-types';
+import {
+  TimerState,
+  WORK_TIME,
+  BREAK_TIME,
+  createInitialTimerState,
+} from '../lib/timer-types';
 
 let timerState: TimerState;
 
@@ -55,7 +60,7 @@ async function loadTimerState() {
     } else {
       timerState = createInitialTimerState();
     }
-    
+
     await updateBadge();
     await broadcastTimerUpdate();
   } catch (error) {
@@ -112,13 +117,26 @@ async function handleTimerComplete(state: TimerState) {
   state.timeLeft = 0;
 
   await showNotification(wasWorkTime);
+
+  // 自動的に次のモードに切り替え
+  await autoSwitchMode(state, wasWorkTime);
+
   await saveTimerState();
   await updateBadge();
   await broadcastTimerUpdate();
 }
 
+async function autoSwitchMode(state: TimerState, wasWorkTime: boolean) {
+  // 作業時間完了 → 休憩時間に切り替え
+  // 休憩時間完了 → 作業時間に切り替え
+  const nextMode = wasWorkTime ? 'break' : 'work';
+  state.mode = nextMode;
+  state.timeLeft = nextMode === 'work' ? WORK_TIME : BREAK_TIME;
+  state.isRunning = false; // ユーザーが手動で開始する必要がある
+}
+
 async function showNotification(wasWorkTime: boolean) {
-  const title = wasWorkTime ? '作業時間完了！' : '休憩時間完了！';
+  const title = wasWorkTime ? '🍅 作業時間完了！' : '☕ 休憩時間完了！';
   const message = wasWorkTime
     ? 'お疲れさまでした！5分間の休憩を取りましょう。'
     : '休憩終了！次のポモドーロを始めましょう。';
@@ -130,6 +148,7 @@ async function showNotification(wasWorkTime: boolean) {
       title,
       message,
       priority: 2,
+      requireInteraction: true,
     });
   } catch (error) {
     console.error('Error showing notification:', error);
@@ -150,7 +169,7 @@ async function updateBadge() {
     } else {
       color = timerState.mode === 'work' ? '#9d6b66' : '#6b9d6e';
     }
-    
+
     await browser.action.setBadgeBackgroundColor({ color });
     await browser.action.setBadgeTextColor({ color: '#ffffff' });
   } catch (error) {
