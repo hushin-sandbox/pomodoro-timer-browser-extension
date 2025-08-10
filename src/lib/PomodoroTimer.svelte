@@ -128,20 +128,22 @@
     </div>
 
     <div class="mode-switch">
-      <button
-        class="mode-button"
-        class:active={mode === 'work'}
-        on:click={() => switchMode('work')}
-      >
-        🍅 作業に切替
-      </button>
-      <button
-        class="mode-button"
-        class:active={mode === 'break'}
-        on:click={() => switchMode('break')}
-      >
-        ☕ 休憩に切替
-      </button>
+      {#if mode !== 'work'}
+        <button
+          class="mode-button"
+          on:click={() => switchMode('work')}
+        >
+          🍅 作業に切替
+        </button>
+      {/if}
+      {#if mode !== 'break'}
+        <button
+          class="mode-button"
+          on:click={() => switchMode('break')}
+        >
+          ☕ 休憩に切替
+        </button>
+      {/if}
     </div>
   {/if}
 </div>
