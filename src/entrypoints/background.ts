@@ -148,7 +148,6 @@ async function showNotification(wasWorkTime: boolean) {
       title,
       message,
       priority: 2,
-      requireInteraction: true,
     });
   } catch (error) {
     console.error('Error showing notification:', error);
